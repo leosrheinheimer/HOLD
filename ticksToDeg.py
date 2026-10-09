@@ -5,4 +5,3 @@ def ticksToDeg(ticks, zero_offset_ticks, ticks_per_motor_turn, gear_ratio, direc
     output_degrees = output_revolutions * 360.0
     return output_degrees
 
-print(ticksToDeg(0,0,11,34,+1))
