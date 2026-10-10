@@ -17,5 +17,5 @@ while True:
             count += 1
         elif pin_b_value != pin_a_value:
             count -= 1
-        print(str(count) , " " +"encoder degrees: " , str(ticksToDeg(count,0,1245.5,1,+1)))
+        print(str(count) , " " +"encoder degrees: " , str(ticksToDeg(count,0,1245.5,+1)))
     last_a = pin_a_value
