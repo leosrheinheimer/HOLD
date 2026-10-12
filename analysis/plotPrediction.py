@@ -22,9 +22,9 @@ plt.plot(angles_deg, unloaded_torque_values, label="unloaded")
 
 plt.xlabel("Angle (deg)")
 plt.ylabel("Torque Value (Nm)")
-plt.title("unloaded vs loaded torque predictions")
+plt.title("Unloaded vs Loaded Torque Predictions, Placeholder Values")
 plt.legend()
 plt.grid(True)
 
-plt.savefig("torque predictions.png", dpi=150)
+plt.savefig("data/predicted_torque.png", dpi=150)
 plt.show()
