@@ -12,4 +12,4 @@ for angle in test_angles_deg:
     loaded_torque_nm= gravityTorque.gravityTorque(angle, load_mass_kg, load_radius_m, arm_mass_kg, arm_com_radius_m)
     unloaded_torque_nm= gravityTorque.gravityTorque(angle, 0, load_radius_m, arm_mass_kg, arm_com_radius_m)
     print("%.1f, %.4f, %.4f" % (angle, unloaded_torque_nm, loaded_torque_nm))
-
+    
