@@ -22,6 +22,5 @@ def onTick(pin) :
 pin_a.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=onTick, hard=True)
 
 while True :
-    ##print(count, " ", str(ticksToDeg.ticksToDeg(count,0,1245.5,1,+1)))
     time.sleep(0.1) 
     print("%.1f" % ticksToDeg.ticksToDeg(count,0,1245.5,+1))
