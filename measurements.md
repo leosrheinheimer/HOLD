@@ -14,3 +14,21 @@
 - **Encoder** Yellow on GP2, Green on GP3, Blue on 3V3, Black on GND
 - **INA219 (amp sensor)** SDA (purple) on GP0, SCL (gray) on GP1, VCC (red) and GND (black) to the rails
 - **MD10C (motor controller)** PWM (orange) on GP14, DIR (brown) on GP15, GND (black) to the rail
+
+## INA219 accuracy check (Oct 24, 2026)
+
+- **Setup:** 3.3 V rail → Vin+ → shunt → Vin− → test resistor → GND. Readings from `pico/readINA219.py`.
+- **Zero check:** with no resistor, current reads 0.0 mA (±0.2 mA). No offset.
+- **Bus voltage:** 3.260–3.268 V.
+- **Shunt:** marked R100 (0.1 Ω).
+
+| Resistor (kit values: 220R / 1k / 10k) | Expected (3.26 V ÷ R) | Measured | Ratio |
+|---|---|---|---|
+| 220 Ω | 14.8 mA | 18.2–18.6 mA | 1.24 |
+| 1 kΩ | 3.27 mA | 3.9–4.4 mA | ~1.28 |
+| 10 kΩ | 0.33 mA | 0.2–0.6 mA | ~1.3 (noisy) |
+
+- **Result:** reads about 25% high, roughly constant across all three resistors. That's far outside the INA219's ~1% spec.
+- **Cause:** unresolved. The resistor colour bands were hard to read, and values were matched to the kit listing. The multimeter gave drifting readings that didn't flip sign symmetrically when the probes were reversed (likely a weak battery), so it couldn't serve as a reference.
+- **Impact:** a constant scale error is absorbed by the torque calibration against the scale.
+- **Next:** check against the bench supply's current display during the power-up.
