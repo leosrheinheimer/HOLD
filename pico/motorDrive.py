@@ -1,4 +1,3 @@
-import time 
 from machine import Pin, PWM
 
 motor_pwm = PWM(Pin(14), freq=20000, duty_u16=0)
@@ -21,18 +20,3 @@ def setMotor(command) :
     abs_duty = abs(command)
     duty_pct = max(0, min(abs_duty, duty_LIMIT))
     motor_pwm.duty_u16(int((duty_pct/100) * max_possible_duty))
-
-
-
-
-# #test sequence
-# print('starting cycle')
-# setMotor(20)
-# time.sleep(2)
-# setMotor(-20)
-# time.sleep(2)
-# setMotor(50)
-# time.sleep(2)
-# setMotor(0)
-# print('cycle complete')
-
