@@ -8,10 +8,31 @@ dir_pin = Pin(15,Pin.OUT)
 max_possible_duty = 65535.0
 duty_pct = 20.0
 duty_pct = max(0, min(duty_pct, 20))
+duty_LIMIT = 20
 
-print('cycle started')
-dir_pin.value(0)
-motor_pwm.duty_u16(int((duty_pct/100) * max_possible_duty))
-time.sleep(2)
-motor_pwm.duty_u16(0)
-print('complete')
+
+def setMotor(command) : 
+    if command == 0:
+        motor_pwm.duty_u16(0)
+    elif command > 0 : 
+        dir_pin.value(1)
+    elif command < 0 :
+        dir_pin.value(0)
+    abs_duty = abs(command)
+    duty_pct = max(0, min(abs_duty, duty_LIMIT))
+    motor_pwm.duty_u16(int((duty_pct/100) * max_possible_duty))
+
+
+
+
+# #test sequence
+# print('starting cycle')
+# setMotor(20)
+# time.sleep(2)
+# setMotor(-20)
+# time.sleep(2)
+# setMotor(50)
+# time.sleep(2)
+# setMotor(0)
+# print('cycle complete')
+
