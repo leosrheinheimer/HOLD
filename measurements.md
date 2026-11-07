@@ -32,3 +32,10 @@
 - **Cause:** unresolved. The resistor colour bands were hard to read, and values were matched to the kit listing. The multimeter gave drifting readings that didn't flip sign symmetrically when the probes were reversed (likely a weak battery), so it couldn't serve as a reference.
 - **Impact:** a constant scale error is absorbed by the torque calibration against the scale.
 - **Next:** check against the bench supply's current display during the power-up.
+
+**Deadband Test, 11/7/26**
+Motor Unloaded
+
+Direction	Positive first	Negative first	All 7 runs
+Positive (CCW)	5, 4, 6, 5%	5, 6, 6%	4–6%, mean 5.3%
+Negative (CW)	4, 4, 4%	4, 5, 4%	4–5%, mean 4.2%

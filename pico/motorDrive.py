@@ -7,7 +7,7 @@ dir_pin = Pin(15,Pin.OUT)
 max_possible_duty = 65535.0
 duty_pct = 20.0
 duty_pct = max(0, min(duty_pct, 20))
-duty_LIMIT = 20
+duty_LIMIT = 30
 
 
 def setMotor(command) : 
