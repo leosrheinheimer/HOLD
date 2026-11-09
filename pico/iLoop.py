@@ -26,12 +26,12 @@ try:
 
         if abs(error) < target_deadband : 
             command = 0
-        elif abs(kP * error + utility.clamp(kI*integral,-integral_limit,integral_limit)) < gearbox_deadband : 
-            if prev_command > -motorDrive.duty_LIMIT and prev_command < motorDrive.duty_LIMIT :
-               integral += error*dt
-            integral = utility.clamp(integral,-integral_limit/kI,integral_limit/kI)
-            raw = kP * error + kI * integral
-            command = gearbox_deadband * raw/abs(raw)
+        # elif abs(kP * error + utility.clamp(kI*integral,-integral_limit,integral_limit)) < gearbox_deadband : 
+        #     if prev_command > -motorDrive.duty_LIMIT and prev_command < motorDrive.duty_LIMIT :
+        #        integral += error*dt
+        #     integral = utility.clamp(integral,-integral_limit/kI,integral_limit/kI)
+        #     raw = kP * error + kI * integral
+        #     command = gearbox_deadband * raw/abs(raw)
         else : 
             if prev_command > -motorDrive.duty_LIMIT and prev_command < motorDrive.duty_LIMIT:
                     integral += error*dt
@@ -51,6 +51,3 @@ try:
         print('ended outside tolerance')
 finally:
     motorDrive.setMotor(0)
-
-
-
