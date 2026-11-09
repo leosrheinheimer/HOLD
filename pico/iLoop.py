@@ -13,15 +13,17 @@ pid_hz = 100
 max_time = 10.0
 
 try:
-    previous_time_ms = time.ticks_ms()
+    previous_time_us = time.ticks_us()
     prev_command = 0.0
     integral = 0
     for i in range (int(max_time * pid_hz)) :
-        dt_ms = time.ticks_diff(time.ticks_ms(),previous_time_ms)
-        dt = dt_ms/1000
+        current_time_us = time.ticks_us()
+        dt_us = time.ticks_diff(current_time_us,previous_time_us)
+        dt = dt_us/1000000
         current_angle = encoder.getAngle()
         error = target_angle - current_angle
-        previous_time_ms = time.ticks_ms()
+        previous_time_us = current_time_us
+
         if abs(error) < target_deadband : 
             command = 0
         elif abs(kP * error + utility.clamp(kI*integral,-integral_limit,integral_limit)) < gearbox_deadband : 

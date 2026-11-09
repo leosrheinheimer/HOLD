@@ -23,6 +23,7 @@
         "onTick.py",
         "motorTest.py",
         "test_ticksToDeg.py",
-        "deadbandTest.py"
+        "deadbandTest.py",
+        "pidtest.py"
     ]
 }
