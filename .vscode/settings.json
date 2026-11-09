@@ -22,6 +22,7 @@
         "readEncoder.py",
         "onTick.py",
         "motorTest.py",
-        "test_ticksToDeg.py"
+        "test_ticksToDeg.py",
+        "deadbandTest.py"
     ]
 }
