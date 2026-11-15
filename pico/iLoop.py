@@ -3,51 +3,55 @@ import encoder
 import time
 import utility 
 
+pid_hz = 100
+max_time = 10.0
 target_angle = 90.0
 kP = 1
 kI = 3
 integral_limit = 20.0
 target_deadband = 2.0
-gearbox_deadband = 6.0
-pid_hz = 100
-max_time = 10.0
+
+
 
 try:
-    previous_time_us = time.ticks_us()
-    prev_command = 0.0
+    command = 0
     integral = 0
-    for i in range (int(max_time * pid_hz)) :
-        current_time_us = time.ticks_us()
-        dt_us = time.ticks_diff(current_time_us,previous_time_us)
-        dt = dt_us/1000000
+    prev_time = time.ticks_us()
+
+    print("Target Angle, Current Angle, Command, kI * Integral")
+
+    for i in range(int(max_time * pid_hz)):
+        
+        #time
+        current_time = time.ticks_us()
+        dt = time.ticks_diff(current_time,prev_time)/1000000
+        prev_time = current_time
+    
+        #angle
         current_angle = encoder.getAngle()
         error = target_angle - current_angle
-        previous_time_us = current_time_us
 
+        #command
+        prev_command = command
+
+        #pi loop
         if abs(error) < target_deadband : 
             command = 0
-        # elif abs(kP * error + utility.clamp(kI*integral,-integral_limit,integral_limit)) < gearbox_deadband : 
-        #     if prev_command > -motorDrive.duty_LIMIT and prev_command < motorDrive.duty_LIMIT :
-        #        integral += error*dt
-        #     integral = utility.clamp(integral,-integral_limit/kI,integral_limit/kI)
-        #     raw = kP * error + kI * integral
-        #     command = gearbox_deadband * raw/abs(raw)
         else : 
             if prev_command > -motorDrive.duty_LIMIT and prev_command < motorDrive.duty_LIMIT:
-                    integral += error*dt
+                integral += error * dt
+            # anti windup
             integral = utility.clamp(integral,-integral_limit/kI,integral_limit/kI)
-            command = kP*error + utility.clamp(kI*integral,-integral_limit,integral_limit)
-        motorDrive.setMotor(command)
-        prev_command = command 
+            command = kP * error + kI * integral
 
-        ##plotting
-        print(f'{target_angle}, {current_angle}, {command}, {kI * integral}')  
+        #motor commanding
+        motorDrive.setMotor(command)
+
+        #logging
+        print(f'{target_angle}, {current_angle}, {command}, {kI * integral}')
+
+        #pause for hz
         time.sleep(1/pid_hz)
 
-
-    motorDrive.setMotor(0)
-
-    if abs(error) > target_deadband : 
-        print('ended outside tolerance')
 finally:
     motorDrive.setMotor(0)
