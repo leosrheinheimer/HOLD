@@ -1,7 +1,6 @@
 import encoder 
 
-
-
+#MANUAL METHOD:
 print(f'current angle is {encoder.getAngle()} degrees')
 print()
 input('enter y when arm is level...')
