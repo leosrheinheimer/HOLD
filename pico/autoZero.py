@@ -47,5 +47,3 @@ def autoZero() :
     finally:
         motorDrive.setMotor(0)
 
-
-autoZero()
