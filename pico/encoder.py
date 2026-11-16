@@ -27,5 +27,5 @@ pin_a.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=onTick, hard=True)
 
 def getAngle() : 
     angle_deg = ticksToDeg.ticksToDeg(count, zero_offset_ticks, ticks_per_output_turn, direction)
-    return angle_deg
+    return float(angle_deg)
 
