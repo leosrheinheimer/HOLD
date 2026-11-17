@@ -15,16 +15,9 @@
     "micropico.syncFolder": "pico",
     "micropico.pyIgnore": [
         "__pycache__",
-        "blink.py",
-        "fadeLED.py",
-        "i2cScan.py",
-        "readINA219.py",
-        "readEncoder.py",
         "onTick.py",
-        "motorTest.py",
         "test_ticksToDeg.py",
         "deadbandTest.py",
-        "pidtest.py",
         "callibrateZero.py"
     ]
 }
