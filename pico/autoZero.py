@@ -18,7 +18,7 @@ def autoZero() :
 
     try:
         run_time = 0.0
-        #servo.extend_pin()
+        servo.extend_pin()
         time.sleep(1.5)
         while True :
             motorDrive.setMotor(20)

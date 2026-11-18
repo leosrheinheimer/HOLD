@@ -11,11 +11,18 @@
 - **Against the listing:** the seller's specs imply 748 (11 pulses × 2 edges × 34:1 gearbox). The measured value is 66% higher. How it splits between encoder pulses and gear ratio is unknown. The rig only uses the product.
 - **Placement:** the encoder is on the motor side of the gearbox, so gearbox backlash shows up in the reading (see Backlash).
 
-## Pin map (updated Nov 14, 2026, after the rewire)
+## Pin map (updated Nov 18, 2026, baseplate rebuild)
 
 - **Encoder:** yellow on GP2, green on GP3, blue on 3V3, black on GND.
 - **MD10C (motor controller):** PWM (orange) on GP14, DIR (brown) on GP15, GND (black) to the rail.
+- **Zero-pin servo:** signal (white) on GP13 (pin 17), red on VBUS (pin 40, 5 V), black on GND (pin 28). GP13 is on a different PWM slice from GP14/GP15, so its 50 Hz doesn't affect the motor's 20 kHz.
 - **INA219:** removed Nov 7. Current sensing dropped (see INA219 section).
+
+## Rig build (Nov 18, 2026)
+
+- **Baseplate:** printed PLA plate carrying the motor, MD10C (three standoffs with heat-set inserts), breadboard and Pico, and the zero-pin servo. Screwed to the 2×4 through four counterbored holes.
+- **Level reference:** the plate is not level. Its reading on the torpedo level is a per-session check that nothing has moved; the pin angle is measured against true level, so plate tilt is absorbed into it.
+- **Wiring:** servo cable in a channel with retaining tabs; power leads zip-tied to printed anchors.
 
 ## Motor drive and sign convention
 
@@ -23,7 +30,7 @@
 - **Command:** `setMotor(command)` takes a signed percent. The sign sets DIR; the magnitude sets duty, clamped to `duty_LIMIT`.
 - **Duty cap (`duty_LIMIT`):** 50% since Nov 16 (20% on Nov 6, 30% from Nov 7). The PI loop's anti-windup cap follows it.
 - **Sign convention:** a positive command sets DIR = 1, turns the arm CCW, and increases the encoder count and angle. Holding against gravity takes a positive command.
-- **Supply:** bench supply at 12.0 V with a 0.5 A current limit (confirmed Nov 6).
+- **Supply:** bench supply at 12.0 V with a 0.5 A current limit (confirmed Nov 6). During `autoZero` the supply read 0.12 A, well under the limit.
 
 ## Position control loop: `goToAngle()` in `pico/iLoop.py` (Nov 9–14, 2026)
 
@@ -36,6 +43,14 @@
 | Anti-windup | integral frozen while the previous command is at the duty cap |
 | Loop rate | set to 100 Hz; measured about 85 Hz (each pass 11–12 ms) |
 | Timing | `time.ticks_us()` with `ticks_diff` |
+
+- **Large moves:** from +156° to 0° the command saturates at `duty_LIMIT`, overshoots the hold band, and needs about 2 s to settle back inside it.
+
+## Servo: `pico/servoDrive.py` (Nov 18, 2026)
+
+- **Signal:** 50 Hz (20 ms period); pulse width sets position.
+- **Limits:** `duty_u16` 3000–7250 (0.92–2.21 ms), mapped linearly to 0–180°.
+- **Positions:** retracted = 180° (also the power-up position), extended = 90°.
 
 ## INA219 accuracy check (Oct 24, 2026). Sensor dropped Nov 7.
 
@@ -65,7 +80,15 @@ Arm off, motor unloaded. Smallest duty that starts motion.
 
 This is breakaway friction with no gravity load. It is not the holding friction band (see Not yet measured).
 
-## Arm Mk2 mass properties (Nov 14, 2026)
+## Arm Mk3 (Nov 17, 2026)
+
+- **Arm Mk3 (printed PLA, bare, no screws):** 31.34 g, centre of mass 138 mm from the shaft (balance method). Gravity torque at horizontal: 42.4 mN·m.
+- **Hub screws:** 4 × M4×16 + 4 × M4 flat washers, symmetric about the shaft, so no gravity torque. The goBILDA 1309 hub (14.22 g) is on the axis.
+- **Load holes:** every 50 mm from 150 to 300 mm. Load = bolt + nut + washers at the chosen hole; nothing is fixed on the arm.
+- **Resolution at 300 mm:** one 10.20 g washer = 30.0 mN·m ≈ 1.08% duty.
+- **Mk3.1 (printing Nov 18):** fillet at the motor mount removed, load holes counterbored. Mass and CoM to be re-measured; the Mk3 values above don't apply to it.
+
+## Arm Mk2 (Nov 14, 2026; retired)
 
 | Component | Mass (g) | Distance from shaft (mm) |
 |---|---|---|
@@ -77,7 +100,6 @@ This is breakaway friction with no gravity load. It is not the holding friction 
 | **Arm + fixed hardware (hub excluded)** | **58.92** | **95.22 (combined CoM)** |
 
 - **Arm weight at the 118 mm scale point:** 47.6 g (computed with mount 2 at 150 mm; 47.5 g with 149.5 mm, a negligible difference).
-- **Test load:** 3 large washers, 30.60 g (10.20 g ± 0.02 g each), on mount 2 at 149.5 mm.
 
 ## Gearbox backlash (Nov 14, 2026)
 
@@ -85,30 +107,37 @@ This is breakaway friction with no gravity load. It is not the holding friction 
 - **Result:** about 8.5 mm of play at 125 mm. arctan(8.5 / 125) ≈ 3.9°, so about 4°.
 - **Effect:** the encoder sits on the motor side, so it reads the motor's position within this slop, not the arm's.
 
-## Zero pin (Nov 14, 2026)
+## Zero pin, Mk3 (servo pin, Nov 18, 2026)
 
-A 3/8 in bolt (0.3675 in, 9.33 mm measured) is the hard stop below level. The reading is the angle from the pin to level, taken with `pico/callibrateZero.py`.
+- **Pin angle:** +155.9° from level, past vertical, outside the −90° to +90° sweep. 5 hand trials with `callibrateZero.py`: 154.92, 156.66, 154.35, 156.08, 157.24° (spread 2.9°).
+- **Repeatability (motor-driven, +30%):** encoder count at the pin 546, 548, 547, 546 over 4 runs: 2 ticks (0.58°) spread. The hand trials' larger spread came from hand placement, not the pin.
+- **Level check:** after `autoZero`, the level agreed with `getAngle()`.
+- **Backlash:** driving positive into the pin loads the gears on the same side as holding against gravity across the sweep.
+
+## Zero pin, Mk2 (3/8 in bolt, Nov 14, 2026; retired)
 
 | Placement | Trials (°) | Mean |
 |---|---|---|
 | Gentle | 11, 10.5, 10.5 | 10.7° |
 | Hard ("slam") | 14, 14.5, 14.5, 14.5 | 14.4° |
 
-- **Chosen method:** hard slam, repeatable to about ±0.25°.
-- **Why gentle and hard differ by about 3.7°:** backlash. A hard push drives the gears to the far side of their slop; a gentle placement leaves them anywhere inside it. The arm sits on the same pin both times.
-- **Pin position (shaft centre to bolt centre):** not yet measured.
+- **Why gentle and hard differ by about 3.7°:** backlash. A hard push drives the gears to the far side of their slop; a gentle placement leaves them anywhere inside it.
+- **Retired because:** washers on the 150 mm bolt reached the pin when loaded.
 
-## Auto-zero: `autoZero()` in `pico/autoZero.py` (updated Nov 16, 2026)
+## Auto-zero: `autoZero()` in `pico/autoZero.py` (updated Nov 18, 2026)
 
-1. Drives at −20% into the pin until the encoder reading stops changing for 0.3 s (4 s timeout).
-2. At the pin, sets `encoder.zero_offset_ticks` with `ticksToDeg.zeroOffsetTicks()` so that `getAngle()` reads −14.4° there. Level is then 0°.
-3. Drives to 0° with `goToAngle()`. Returns True; on timeout prints a failure, doesn't move, and returns False.
+1. Extends the servo pin, waits 1.5 s.
+2. Drives positive into the pin until the encoder reading stops changing for 0.3 s (10 s timeout).
+3. At the pin, sets `encoder.zero_offset_ticks` with `ticksToDeg.zeroOffsetTicks()` so that `getAngle()` reads +155.9° there. Level is then 0°.
+4. Drives to 0° with `goToAngle(0, 2, …)`, retracts the pin, returns True.
+5. On timeout: prints a failure, retracts the pin, returns False, doesn't move.
 
-- **Expected result:** the arm stops up to about 2° below level (the loop's hold band), and `getAngle()` reports that true angle.
-- **History:** the Nov 14 version never set the offset. It drove to `pin angle + 17°`, an empirical number that hid the loop's stopping error and was validated level to ±1° with a level.
-- **Status:** new version not yet tested on the rig.
+- **Result:** stops at −1.92° every run (inside the ±2° hold band, approaching from above).
+- **Failure path tested:** with the pin not extended, the arm spun until the 10 s timeout and returned False.
+- **Known gap:** any stall counts as "pin reached". An obstruction elsewhere would set a wrong zero. No guard yet.
+- **History:** Nov 14, no offset set (drove to pin + 17°). Nov 16, offset set at a bolt pin (−14.4°), 4 s timeout. Nov 18, servo pin at +155.9°; the 4 s timeout ended zeroing mid-travel and was raised to 10 s.
 
-## Torque calibration: motor duty against scale force (Nov 14, 2026)
+## Torque calibration: motor duty against scale force (Nov 14, 2026, Mk2)
 
 - **Setup:** the arm presses down on a kitchen scale at a 118 mm lever arm, duty stepped up from 4 to 22% in steps of 2. 4 trials per duty. Script: `pico/calibrateTorque.py`.
 - **Motor force** = mean scale reading − 47.6 g (the arm's own weight at the scale).
@@ -133,18 +162,20 @@ A 3/8 in bolt (0.3675 in, 9.33 mm measured) is the hard stop below level. The re
 - **Zero-torque duty:** about 4.3%, consistent with the deadband test.
 - **Above 18%:** the curve flattens. Suspected cause: the supply's 0.5 A current limit. Unconfirmed.
 - **Direction:** positive command only, the same direction as holding against gravity. Duty stepped up only; no down-step run yet.
+- **Still valid for Mk3:** the calibration measures the motor, not the arm.
 
 ## Gravity model check, Mk2 (Nov 16, 2026)
 
 - **Predicted torque at horizontal** (`analysis/predictTorque.py`): 55.0 mN·m unloaded, 99.9 mN·m loaded.
 - **Measured arm torque:** at 4% duty the motor adds about nothing, and the scale read 47.0 g at 118 mm = 54.4 mN·m. That's 1% below the prediction. Assumes the arm was level on the scale and the dowel pin weighs 2 g.
-- **Predicted holding duty at horizontal** (from the fit): 6.3% unloaded, 7.9% loaded.
-- **Load sizing:** peak loaded gravity torque is 23% of the highest measured motor torque (99.9 / 435 mN·m), below the 30–40% target. Load choice is pending the friction band.
+- `analysis/constants.py` still holds the Mk2 values. It gets updated once the Mk3.1 values and the load are final.
 
 ## Not yet measured
 
-- **Holding friction band** at horizontal, unloaded and with 3 washers: the sag-to-lift duty range. It decides the load and whether the washer-count demo can resolve single washers. To resolve one 10.20 g washer at radius r: r ≥ 279 mm × band width (% duty).
-- **Zero pin position:** shaft centre to bolt centre.
-- **Dowel pin mass** (2 g assumed).
+- **Holding friction band** at horizontal on Mk3, unloaded and with 3 washers: the sag-to-lift duty range. It decides the load and whether the washer-count demo can resolve single washers. To resolve one 10.20 g washer at radius r: r ≥ 279 mm × band width (% duty).
+- **Arm Mk3.1 mass and CoM.**
+- **Pin angle on Mk3.1** (one `autoZero` + level check).
+- **Load bolt + nut mass on Mk3** (the Mk2 pair was 10.71 g).
+- **Plate level reference reading.**
 - **Supply CC light at 20% and 22% duty.**
 - **Calibration down-step run** (hysteresis).
