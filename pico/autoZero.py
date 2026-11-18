@@ -18,11 +18,10 @@ def autoZero() :
 
     try:
         run_time = 0.0
-        servo.retract_pin()
-        time.sleep(1)
         servo.extend_pin()
+        time.sleep(1.5)
         while True :
-            motorDrive.setMotor(30)
+            motorDrive.setMotor(20)
             current_angle = encoder.getAngle()
             if current_angle == prev_angle :
                     frozen_angle_s += dt
@@ -45,14 +44,17 @@ def autoZero() :
 
             if run_time >= max_runtime : 
                  break
+            
 
         if pin_reached == False : 
             print('zeroing bolt not reached, runtime limit hit')
+            servo.retract_pin()
             return False
         else :  
             #going back to zero
             iLoop.goToAngle(0,1,False)
+            servo.retract_pin()
             return True
-
+        
     finally:
         motorDrive.setMotor(0)
