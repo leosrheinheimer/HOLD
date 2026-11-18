@@ -1,6 +1,8 @@
 import encoder 
+import servoDrive as servo
 
 #MANUAL METHOD:
+servo.extend_pin()
 print(f'current angle is {encoder.getAngle()} degrees')
 print()
 input('enter y when arm is level...')
