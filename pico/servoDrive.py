@@ -5,7 +5,7 @@ import utility
 min_pos = 3000
 max_pos = 7250
 
-servo_pwm = PWM(Pin(13), freq=50, duty_u16=min_pos)
+servo_pwm = PWM(Pin(13), freq=50, duty_u16=max_pos)
 
 
 def degToPwm(degrees):
