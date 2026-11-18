@@ -15,4 +15,8 @@ def degToPwm(degrees):
 def setServo(position_deg):
     servo_pwm.duty_u16(degToPwm(position_deg))
 
+def retract_pin():
+    setServo(180)
 
+def extend_pin():
+    setServo(90)
