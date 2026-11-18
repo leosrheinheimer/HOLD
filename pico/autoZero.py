@@ -3,6 +3,7 @@ import motorDrive
 import time 
 import iLoop
 import ticksToDeg
+import servoDrive as servo
 
 
 def autoZero() : 
@@ -11,15 +12,17 @@ def autoZero() :
     minimum_frozen_s = 0.3
     dt = 0.01
     run_time = 0.0
-    max_runtime = 4
-    zeroing_bolt_deg = -14.4 # from slamming trials (in measurements.md)
+    max_runtime = 10
+    zeroing_bolt_deg = 155.9 # from trials (in measurements.md)
     pin_reached = False
 
     try:
         run_time = 0.0
+        servo.retract_pin()
+        time.sleep(1)
+        servo.extend_pin()
         while True :
-
-            motorDrive.setMotor(-20)
+            motorDrive.setMotor(30)
             current_angle = encoder.getAngle()
             if current_angle == prev_angle :
                     frozen_angle_s += dt
@@ -44,7 +47,7 @@ def autoZero() :
                  break
 
         if pin_reached == False : 
-            print('zeroing bolt not reached')
+            print('zeroing bolt not reached, runtime limit hit')
             return False
         else :  
             #going back to zero

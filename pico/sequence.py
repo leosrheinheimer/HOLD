@@ -1,0 +1,3 @@
+import autoZero
+
+autoZero.autoZero()
