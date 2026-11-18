@@ -18,7 +18,7 @@ def autoZero() :
 
     try:
         run_time = 0.0
-        servo.extend_pin()
+        #servo.extend_pin()
         time.sleep(1.5)
         while True :
             motorDrive.setMotor(20)
@@ -30,7 +30,6 @@ def autoZero() :
 
             if frozen_angle_s >= minimum_frozen_s : 
                  motorDrive.setMotor(0)
-                 print('zeroing bolt reached')
                  encoder.zero_offset_ticks = ticksToDeg.zeroOffsetTicks(encoder.count,zeroing_bolt_deg,encoder.ticks_per_output_turn,encoder.direction)
                  pin_reached = True
                  break
@@ -52,7 +51,7 @@ def autoZero() :
             return False
         else :  
             #going back to zero
-            iLoop.goToAngle(0,1,False)
+            iLoop.goToAngle(0,2,False)
             servo.retract_pin()
             return True
         
