@@ -16,7 +16,7 @@ plt.plot(angles_deg, unloaded_torque_values, label="unloaded")
 
 plt.xlabel("Angle (deg)")
 plt.ylabel("Torque Value (Nm)")
-plt.title("Unloaded vs Loaded Torque Predictions, 3 Large Washers @10.20g Each")
+plt.title("Unloaded vs Loaded Torque Predictions, 43.44g load")
 plt.legend()
 plt.grid(True)
 
