@@ -24,7 +24,7 @@
 ## Method
 
 - **Angles:** 0, 15, 30, 45, 60, 75°.
-- **At each angle,** unloaded and loaded: measure the friction band with the same process as `pico/frictionBand.py` (lift and drop thresholds, 0.25% steps, 1° motion threshold), 5 trials each.
+- **At each angle,** unloaded and loaded: measure the friction band with the same process as `pico/frictionBand.py` (lift and drop thresholds, 0.25% steps, 2° motion threshold), 5 trials each.
 - **Headline result: load torque.** (Loaded lift − unloaded lift) × 27.9 mN·m per %, against the "Load alone" column. Friction mostly cancels in the difference.
 - **Secondary result: total torque.** Midpoint of lift and drop, converted with the calibration, against the "Arm only" and "Arm + load" columns.
 

@@ -180,7 +180,7 @@ This is breakaway friction with no gravity load. Under gravity load the friction
 
 ## Friction band at horizontal, Mk3.1 (Nov 21, 2026)
 
-Open loop at horizontal after autoZero. Lift = smallest duty that raises the arm 1°; drop = largest duty at which it falls 1°. 0.25% steps, 5 trials each. Loaded searches started from a duty that holds the arm.
+Open loop at horizontal after autoZero. Lift = smallest duty that raises the arm 2°; drop = largest duty at which it falls 2°. 0.25% steps, 5 trials each. Loaded searches started from a duty that holds the arm.
 
 | Load | Lift (%) | Drop (%) | Band | Midpoint |
 |---|---|---|---|---|
@@ -188,7 +188,7 @@ Open loop at horizontal after autoZero. Lift = smallest duty that raises the arm
 | 43.44 g at 300 mm | 21.25, 21.25, 21.0, 21.0, 21.0 (mean 21.1) | 1.5, 1.75, 1.5, 1.75, 1.25 (mean 1.55) | 19.6 | 11.3 |
 
 - **Friction dominates:** the band (about 18–20% duty) is about 8× the arm's own gravity duty.
-- **Before 1° of real motion:** the encoder shows a small nudge (motor-side slack), then roughly 5% more duty is needed to break static friction.
+- **Before 2° of real motion:** the encoder shows a small nudge (motor-side slack), then roughly 5% more duty is needed to break static friction.
 - **Lift shift with load:** 4.7% (predicted 4.6% from the calibration slope). The drop side moved 3.1%, so the band widens about 1.6% with load.
 - **Midpoint unloaded:** 7.4%, against 6.6% predicted.
 - **Lift threshold spread:** 1.25% unloaded (drifting upward over the trials), 0.25% loaded. One washer at 300 mm shifts it about 1.1%.
