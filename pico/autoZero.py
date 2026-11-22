@@ -6,7 +6,7 @@ import ticksToDeg
 import servoDrive as servo
 
 
-def autoZero() : 
+def autoZero(start_duty) : 
     prev_angle = 100000
     frozen_angle_s = 0.0
     minimum_frozen_s = 0.3
@@ -21,7 +21,7 @@ def autoZero() :
         servo.extend_pin()
         time.sleep(1.5)
         while True :
-            motorDrive.setMotor(20)
+            motorDrive.setMotor(start_duty)
             current_angle = encoder.getAngle()
             if current_angle == prev_angle :
                     frozen_angle_s += dt
