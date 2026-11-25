@@ -1,7 +1,7 @@
 # Interleaved lift re-test (Nov 25, 2026)
 
 **Purpose:** separate drift from load-dependent friction. On Nov 21 the loaded set ran about an hour before the unloaded set.
-**Rig:** Arm Mk3.1, load at the 300 mm hole (mass not re-weighed this session; intended 43.44 g). Supply 12.0 V, 0.5 A limit. `duty_LIMIT` 30%.
+**Rig:** Arm Mk3.1, load 43.62 g at the 300 mm hole (re-weighed today; Nov 21 value 43.44 g, +0.4%). Supply 12.0 V, 0.5 A limit. `duty_LIMIT` 30%.
 **Method:** per angle: `autoZero`, 5 s move to the angle, 3 unloaded lift trials, load added during a 20 s countdown, 5 s re-settle, 3 loaded lift trials, load removed. 0.25% steps, 1 s per step, re-level before each step, 2° threshold. No warm-up lifts.
 **Sessions:** 0–60° in one run (about 10:35–11:05 am); 75° separately (about 1:40 pm).
 **Aborted first attempt:** the load was left on during the first unloaded set at 0°; no thresholds were found (the search topped out at 19.5%). Not used.
@@ -47,6 +47,6 @@ Torque uses the locked slope, 27.9 mN·m per %. The Nov 21 recalibration (29.0) 
 
 - **Interleaving did not reduce the error.** It's larger than Nov 21 (+41 to +111%). Drift was not the main cause.
 - **The ratio predicted ÷ measured is consistent, at 0.38–0.48 (mean about 0.43, 0–60°).** Consistent with gearbox efficiency: lifting requires gravity torque ÷ η.
-- **Unloaded lifts match Nov 21** (13.58 against 13.81 at 0°). **Loaded lifts are about 4% higher** (24.0 against 20.25 at 0°; 25.75 against 21.0 at 15°). The load mass was not re-weighed this session; to confirm.
+- **Unloaded lifts match Nov 21** (13.58 against 13.81 at 0°). **Loaded lifts are about 4 points of duty higher** (24.0 against 20.25 at 0°; 25.75 against 21.0 at 15°). The load re-weighed at 43.62 g against 43.44 g on Nov 21 (+0.4%), so mass does not explain the difference.
 - **75° is noise-limited:** the predicted signal (1.19% duty) is about the size of the threshold spread, as the lock anticipated.
-- **Next:** interleaved drop sets, to test the efficiency explanation (the predicted drop shift should come out smaller than gravity, not larger).
+- **Drop side:** see `interleavedDrop_2026-11-25.md`. The drop shift came out 15–47% below prediction (0–60°), as the efficiency explanation predicted.

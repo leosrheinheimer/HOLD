@@ -17,7 +17,7 @@ autoZero.autoZero(30)
 print('\a')
 
 
-for angle in range(75,90,15):
+for angle in range(45,90,15):
     print(f'angle ={angle} degrees above horizontal')
     if autoZero.autoZero(30) == False :
         print('not zeroed')
@@ -27,14 +27,14 @@ for angle in range(75,90,15):
     try:
         for i in range(3):
             print(f'trial {i+1}')
-            for i in range (int(unloaded_lift_start[angle]*4),int((unloaded_lift_start[angle]+10)*4)):
+            for i in range (int(unloaded_drop_start[angle]*4),int((unloaded_drop_start[angle]-10)*4),-1):
                 duty = i/4
                 iLoop.goToAngle(angle,1,False)
                 starting_angle = encoder.getAngle()
                 motorDrive.setMotor(duty)
                 time.sleep(1)
-                if starting_angle + 2.0 < encoder.getAngle():
-                    print(f'angle ={angle}, raise duty value ={duty}')
+                if starting_angle - 2.0 > encoder.getAngle():
+                    print(f'angle ={angle}, drop duty value ={duty}')
                     motorDrive.setMotor(0)
                     iLoop.goToAngle(angle-1,2,False)
                     time.sleep(1)
@@ -48,14 +48,14 @@ for angle in range(75,90,15):
 
         for i in range(3):
             print(f'trial {i+1}')
-            for i in range (int(loaded_lift_start[angle]*4),int((loaded_lift_start[angle]+10)*4)):
+            for i in range (int(loaded_drop_start[angle]*4),int((loaded_drop_start[angle]-10)*4),-1):
                 duty = i/4
                 iLoop.goToAngle(angle,1,False)
                 starting_angle = encoder.getAngle()
                 motorDrive.setMotor(duty)
                 time.sleep(1)
-                if starting_angle + 2.0 < encoder.getAngle():
-                    print(f'angle ={angle}, raise duty value ={duty}')
+                if starting_angle - 2.0 > encoder.getAngle():
+                    print(f'angle ={angle}, drop duty value ={duty}')
                     motorDrive.setMotor(0)
                     iLoop.goToAngle(angle-1,2,False)
                     time.sleep(1)
