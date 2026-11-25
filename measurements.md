@@ -28,7 +28,7 @@
 
 - **PWM:** 20 kHz on GP14. The PWM frequency is separate from the control-loop rate.
 - **Command:** `setMotor(command)` takes a signed percent. The sign sets DIR; the magnitude sets duty, clamped to `duty_LIMIT`.
-- **Duty cap (`duty_LIMIT`):** 50% since Nov 16 (20% on Nov 6, 30% from Nov 7). The PI loop's anti-windup cap follows it.
+- **Duty cap (`duty_LIMIT`):** 30% since Nov 21 (20% on Nov 6, 30% from Nov 7, 50% from Nov 16). The PI loop's anti-windup cap follows it.
 - **Sign convention:** a positive command sets DIR = 1, turns the arm CCW, and increases the encoder count and angle. Holding against gravity takes a positive command.
 - **Supply:** bench supply at 12.0 V with a 0.5 A current limit (confirmed Nov 6). Highest draw seen: 0.25 A during the loaded lift tests at 21.25% duty (Nov 21). The CC light has never come on.
 
@@ -87,7 +87,7 @@ This is breakaway friction with no gravity load. Under gravity load the friction
 - **Changes from Mk3:** fillet at the motor mount removed, load holes counterbored, infill increased because Mk3 was too flexible. The infill raised the mass by 17.7 g.
 - **Hub screws:** 4 × M4×16 + 4 × M4 flat washers, symmetric about the shaft, so no gravity torque. The goBILDA 1309 hub (14.22 g) is on the axis.
 - **Load holes:** every 50 mm from 150 to 300 mm. Nothing is fixed on the arm; the load goes on at the chosen hole.
-- **Test load:** 43.44 g at 300 mm = 127.8 mN·m at horizontal.
+- **Test load:** 43.44 g at 300 mm = 127.8 mN·m at horizontal (the value in the locked prediction). Re-weighed Nov 25: 43.62 g (+0.4%, 128.4 mN·m), within the scale's resolution of the lock.
 - **Arm + load at horizontal:** 193.2 mN·m, about 44% of the highest motor torque measured (435 mN·m).
 - **Resolution at 300 mm:** one 10.20 g washer = 30.0 mN·m ≈ 1.1% duty (calibration slope; the measured lift shift agrees, see Friction band).
 
@@ -131,10 +131,10 @@ This is breakaway friction with no gravity load. Under gravity load the friction
 - **Why gentle and hard differ by about 3.7°:** backlash. A hard push drives the gears to the far side of their slop; a gentle placement leaves them anywhere inside it.
 - **Retired because:** washers on the 150 mm bolt reached the pin when loaded.
 
-## Auto-zero: `autoZero()` in `pico/autoZero.py` (updated Nov 18, 2026)
+## Auto-zero: `autoZero()` in `pico/autoZero.py` (updated Nov 21, 2026)
 
 1. Extends the servo pin, waits 1.5 s.
-2. Drives at +20% into the pin until the encoder reading stops changing for 0.3 s (10 s timeout).
+2. Drives at +30% into the pin until the encoder reading stops changing for 0.3 s (10 s timeout).
 3. At the pin, sets `encoder.zero_offset_ticks` with `ticksToDeg.zeroOffsetTicks()` so that `getAngle()` reads +155.9° there. Level is then 0°.
 4. Drives to 0° with `goToAngle(0, 2, …)`, retracts the pin, returns True.
 5. On timeout: prints a failure, retracts the pin, returns False, doesn't move.
@@ -142,7 +142,7 @@ This is breakaway friction with no gravity load. Under gravity load the friction
 - **Result:** parks at −1 to −2° (inside the ±2° hold band, approaching from above). Level check agrees.
 - **Failure path tested:** with the pin not extended, the arm spun until the 10 s timeout and returned False.
 - **Known gap:** any stall counts as "pin reached". An obstruction elsewhere would set a wrong zero. No guard yet.
-- **History:** Nov 14, no offset set (drove to pin + 17°). Nov 16, offset set at a bolt pin (−14.4°), 4 s timeout. Nov 18, servo pin at +155.9°; the 4 s timeout ended zeroing mid-travel and was raised to 10 s.
+- **History:** Nov 14, no offset set (drove to pin + 17°). Nov 16, offset set at a bolt pin (−14.4°), 4 s timeout. Nov 18, servo pin at +155.9°; the 4 s timeout ended zeroing mid-travel and was raised to 10 s. Nov 21, drive raised from +20% to +30% (zeroing stalled at 20% with the load on).
 
 ## Torque calibration: motor duty against scale force (Nov 14, 2026, Mk2)
 
@@ -172,11 +172,20 @@ This is breakaway friction with no gravity load. Under gravity load the friction
 - **Applies to any arm:** the calibration measures the motor, not the arm.
 - **Limit:** it describes torque in a stall, not the start of motion. Lifting the arm from rest needs about 10% more duty than this fit predicts (see Friction band).
 
+## Torque recalibration, Mk3.1 (Nov 21, 2026)
+
+- **Setup:** contact at the 300 mm hole, scale on the 0° side, negative command (pressing with gravity), duty stepped up 4 → 22% in 2% steps, 3 runs. Arm about 5° below level (not measured with the encoder). Data: `data/recallibration_2026-11-21.md`.
+- **Scale check:** 5 quarters read 28.30 g against 28.35 g spec (0.2% low).
+- **Linear region, 4–12%:** **29.0 mN·m per %** (runs 28.7 / 29.1 / 29.3, R² 0.98–0.99), 4% above the Nov 14 value of 27.9.
+- **Above 12%:** force plateaus at 115–140 g and is non-monotonic. Not used.
+- **Force decay:** about 1% per second at a held duty. Not thermal (motor cold). Scale creep not yet ruled out.
+- **Use:** the locked analysis stays on 27.9. Using 29.0 would raise every measured torque by 4%.
+
 ## Gravity model check, Mk2 (Nov 16, 2026)
 
 - **Predicted torque at horizontal** (`analysis/predictTorque.py`): 55.0 mN·m unloaded, 99.9 mN·m loaded.
 - **Measured arm torque:** at 4% duty the motor adds about nothing, and the scale read 47.0 g at 118 mm = 54.4 mN·m. That's 1% below the prediction. Assumes the arm was level on the scale and the dowel pin weighs 2 g.
-- `analysis/constants.py` still holds the Mk2 values. Next: update it to Mk3.1 (49.03 g at 136 mm) and the 43.44 g load at 300 mm, then lock the prediction.
+- `analysis/constants.py` updated to Mk3.1 (49.03 g at 136 mm) and the 43.44 g load at 300 mm on Nov 21; the prediction was locked the same day (`data/prediction.md`).
 
 ## Friction band at horizontal, Mk3.1 (Nov 21, 2026)
 
@@ -195,10 +204,38 @@ Open loop at horizontal after autoZero. Lift = smallest duty that raises the arm
 - **Supply:** peak 0.25 A, CC never on, up to 21.25% duty.
 - **Load chosen:** 43.44 g at 300 mm.
 
+## Load-torque sweep against the locked prediction (Nov 21 and Nov 25, 2026)
+
+**Lock:** `data/prediction.md` (39b6282), committed before any sweep data. Headline: load torque = (loaded lift − unloaded lift) × 27.9 mN·m per %, predicted 127.8 × cos θ mN·m. Load 43.44 g at 300 mm (43.62 g re-weighed Nov 25).
+
+**Method (both days):** lift and drop thresholds at 0, 15, 30, 45, 60, 75°, 0.25% steps, 1 s per step, re-level with `goToAngle` before each step, 2° motion threshold. Nov 21: loaded set (5 trials) then unloaded set about an hour later. Nov 25 (interleaved): at each angle `autoZero`, 3 unloaded trials, load added during a 20 s countdown, 5 s re-settle, 3 loaded trials.
+
+**Data:** `data/sweepLoaded_2026-11-21.md`, `data/sweepUnloaded_2026-11-21.md`, `data/interleavedLift_2026-11-25.md`, `data/interleavedDrop_2026-11-25.md`.
+
+### Load torque (mN·m) and error against the prediction
+
+| Angle (°) | Predicted | Lift shift, Nov 21 | Lift shift, Nov 25 | Drop shift, Nov 21 | Drop shift, Nov 25 | √(lift × drop), Nov 25 | Implied η, Nov 25 |
+|---|---|---|---|---|---|---|---|
+| 0 | 127.8 | 179.6 (+41%) | 290.6 (+127%) | 89.3 (−30%) | 67.4 (−47%) | 140.0 (+10%) | 0.48 |
+| 15 | 123.4 | 260.9 (+111%) | 325.5 (+164%) | 61.4 (−50%) | 72.1 (−42%) | 153.2 (+24%) | 0.47 |
+| 30 | 110.7 | 213.4 (+93%) | 244.1 (+121%) | 80.9 (−27%) | 79.0 (−29%) | 138.9 (+26%) | 0.57 |
+| 45 | 90.4 | 175.8 (+95%) | 188.3 (+108%) | 64.2 (−29%) | 76.7 (−15%) | 120.2 (+33%) | 0.64 |
+| 60 | 63.9 | 131.1 (+105%) | 167.4 (+162%) | 67.0 (+5%) | 34.9 (−45%) | 76.4 (+20%) | 0.46 |
+| 75 | 33.1 | 67.0 (+102%) | 61.6 (+86%) | 15.3 (−54%) | 39.5 (+19%) | 49.3 (+49%) | 0.80 |
+
+- **The lock missed.** The headline (lift-shift) method read +41 to +111% high on Nov 21 and +86 to +164% interleaved on Nov 25, against a promised 20%. The midpoint method read +5 to +55% (Nov 21) and +40 to +61% (Nov 25, 0–60°).
+- **Drift ruled out as the main cause:** interleaving loaded and unloaded sets made the lift-side error larger, not smaller.
+- **Gearbox losses (likely):** lifting needs load ÷ η; back-driving passes about load × η. The lift side reads high and the drop side low at 0–60° on Nov 25 (and at 0–45° on Nov 21). Implied η = √(drop shift ÷ lift shift) = 0.46–0.64 (0–60°), assuming equal efficiency both ways.
+- **√(lift × drop)** cancels a symmetric η: +10 to +33% (0–60°). Chosen after seeing the data, so it is reported alongside the locked result, not in its place.
+- **Unexplained:** lift error × drop error is 1.2–1.8, not 1.0. Either the gearbox loses more lifting than back-driving, or a scale error of about 20% remains. The 29.0 recalibration would add 4%, not remove it.
+- **Day to day:** Nov 25 unloaded lifts matched Nov 21 (13.58 against 13.81% at 0°); loaded lifts read about 4 points of duty higher. Not explained by the load mass (+0.4%).
+- **75° is noise-limited:** the signal (1.19% duty) is about the size of the threshold spread, as the lock anticipated.
+
 ## Not yet measured
 
 - **Mk3.1 print settings** (infill %, wall count), so a reprint matches.
-- **Bolt + nut alone at 300 mm** (for the washer-count demo, which has to subtract it).
-- **Lift threshold against washer count** (0, 1, 2, 3 … washers) for the demo, with a few warm-up lifts first.
+- **Scale creep:** a heavy object on the scale for 10 s. If steady, the force decay during calibration is in the gearbox.
+- **Efficiency directly:** lift and drop thresholds against a known torque at one angle, to test whether η differs between lifting and back-driving.
 - **Plate level reference reading.**
 - **Calibration down-step run** (hysteresis).
+- **Washer-count demo** (deferred Nov 25): bolt + nut alone at 300 mm, and lift threshold against washer count with warm-up lifts first.
