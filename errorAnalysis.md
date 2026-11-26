@@ -1,6 +1,6 @@
 # HOLD: error analysis
 
-**Result:** the locked prediction missed. Measured as the lift-threshold shift, the load torque read 41 to 111% high on Nov 21 and 86 to 164% high in an interleaved re-test on Nov 25, against a promised 20%. The likely cause is gearbox efficiency at breakaway. Lifting needs about load ÷ η, and back-driving passes about load × η. A drop-side test run to check this came out low, as predicted. Combining both sides to cancel η brings the estimate to within 10 to 33% at 0–60°. That combination was chosen after seeing the data, so it is reported alongside the locked result, not in its place.
+**Result:** the locked prediction missed. Measured as the lift-threshold shift, the load torque read 41 to 111% high on Nov 21 and 86 to 164% high in an interleaved re-test on Nov 25, against a promised 20%. The likely cause is gearbox efficiency at breakaway. Lifting needs about load ÷ η, and back-driving passes about load × η. A drop-side test run to check this came out low, as predicted. Combining both sides to cancel η brings the estimate to within 10 to 33% at 0–60°, or +22% as a single fitted value. That combination was chosen after seeing the data, so it is reported alongside the locked result, not in its place.
 
 ![Predicted vs measured load torque](data/loadTorque.png)
 
@@ -48,15 +48,31 @@ Friction that doesn't depend on load (seals, bearings, no-load drag) cancels in 
 
 **Implied efficiency:** drop ÷ lift = η², so η = √(drop ÷ lift) = **0.46 to 0.64** (0–60°). That's plausible for a small multi-stage spur gearbox measured at breakaway, where static friction is at its limit. [Likely; η was not measured directly.]
 
-**Combining both sides:** lift × drop = load², so load = √(lift × drop), and η cancels. This reads +10 to +33% at 0–60°. A plain average of lift and drop can't cancel η: it gives load × (1/η + η) ÷ 2, which is always high, and that's why the midpoint method missed.
+**Combining both sides:** lift × drop = load², so load = √(lift × drop), and η cancels. This reads +10 to +33% at 0–60°. Fitting the model's shape, k·cos θ, gives one number: about 155 mN·m against 127.8 predicted, **+22%** (the dashed blue curve in the figure above). A plain average of lift and drop can't cancel η: it gives load × (1/η + η) ÷ 2, which is always high, and that's why the midpoint method missed.
 
 **Why the calibration didn't see it (likely):** the stall calibration pressed on a scale with nothing sliding. Static friction then only takes up what it needs, so most of the motor's torque reaches the scale. At breakaway, static friction is at its maximum and works fully against the motion. Same gearbox, two friction states.
+
+## Stall against breakaway calibration
+
+![Stall vs breakaway calibration](data/breakawayCalibration.png)
+
+Treating the known gravity torque as a calibration load gives two breakaway calibrations, fitted through the origin at 0–60° (Nov 25 data):
+
+| Condition | mN·m per % duty |
+|---|---|
+| Lifting (breakaway, motor driving the gears) | 11.8 |
+| Dropping (back-driven, gravity driving the gears) | 44.2 |
+| Stall (Nov 14, pressing on a scale) | 27.9 |
+
+The stall slope sits between the two breakaway slopes. Their geometric mean, 22.9, is 22% below the stall slope: the same residual as the k·cos θ fit. To predict the duty this motor needs to move a load from rest, the stall calibration is the wrong tool. These slopes were fitted after the lock.
 
 ## What's still unexplained
 
 - **A residual of +10 to +33%.** If η were the same in both directions, lift error × drop error would be 1.0. It's 1.2 to 1.8. Either the gearbox loses more driving than back-driven (common in gear trains, not tested here), or a scale error of about 20% remains. The 29.0 recalibration would make it 4% worse, not better.
 - **Day-to-day variation.** Loaded lifts read about 4 points of duty higher on Nov 25 than on Nov 21; unloaded lifts matched. Not explained by the load mass.
 - **Force decay during calibration** (about 1% per second). Scale creep not ruled out.
+- **A repeatable bump at 15°.** The lift shift reads higher at 15° than at 0° on both days (261 against 180 mN·m on Nov 21, 326 against 291 on Nov 25), and so does √(lift × drop) (153 against 140). Gravity torque can't be larger at 15° than at 0°, so this is likely gearbox friction that depends on position (which teeth are in mesh). For the measurement, the k·cos θ fit is the right model: it keeps friction out of "load torque". To predict the duty this rig needs at a given angle (feedforward for a controller), a lookup table interpolated from the measured thresholds would be the better tool, because it keeps the hardware's quirks. It would need more angles around 15° to be trusted. The test that would settle it: spin the arm a random number of full turns between trials. If the bump smears out or moves, it's gear mesh; if it stays at 15°, it's tied to the output side (last stage, hub, or a centre-of-mass error).
+- **The trial spreads understate the uncertainty.** All trials at one angle ran with the gearbox in the same mesh state, since re-levelling only moves the arm a few degrees. The spread measures repeatability in one gear configuration, not the scatter across configurations.
 
 ## Error budget
 
@@ -78,3 +94,4 @@ Friction that doesn't depend on load (seals, bearings, no-load drag) cancels in 
 2. **Lock a method that uses both thresholds.** Lift alone carries the gearbox losses into the result by design.
 3. **Measure gearbox friction directly,** driving and back-driven, to test whether the residual comes from unequal losses in each direction.
 4. **Put the encoder on the output shaft,** so backlash doesn't sit between the measurement and the arm.
+5. **Randomise the gear mesh between trials** by spinning the arm a random number of full turns before each one. At a fixed arm angle the output gear always sits in the same place, but the inner gears don't after a full turn, unless every stage ratio is a whole number. Without this, repeated trials sample one mesh configuration and hide position-dependent friction.
