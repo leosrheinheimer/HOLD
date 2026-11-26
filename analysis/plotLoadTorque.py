@@ -33,7 +33,7 @@ plt.fill_between(angleDeg, dropShift1125MNm, liftShift1125MNm, color="tab:blue",
 plt.plot(angleDeg, liftShift1121MNm, color="tab:orange", linestyle="--", label="Nov 21 lift–drop band (locked test)")
 plt.plot(angleDeg, dropShift1121MNm, color="tab:orange", linestyle="--")
 plt.plot(thetaDeg, smoothPredictedMNm, color="black", linestyle="-", linewidth=2, label="Predicted (statics model)")
-plt.plot(thetaDeg, geoMeanFitMNm, color="tab:blue", linestyle="--", linewidth=1.5, label=f"Breakaway geo-mean fit ({geoMeanTorquePerPct:.1f} mN·m/%)")
+plt.plot(thetaDeg, geoMeanFitMNm, color="tab:blue", linestyle="--", linewidth=1.5, label=f"Breakaway geo-mean fit ({geoMeanTorquePerPct:.1f} mN·m)")
 plt.plot(angleDeg[:-1], geoMean1125MNm[:-1], color="tab:blue", marker="o", linestyle="None", label="Nov 25 √(lift × drop)")
 plt.plot(angleDeg[-1], geoMean1125MNm[-1], color="tab:blue", marker="o", markerfacecolor="none", linestyle="None", label="75° point (noise-limited)")
 
